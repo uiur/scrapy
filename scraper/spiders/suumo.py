@@ -1,6 +1,7 @@
 import scrapy
 from scrapy.spiders import CrawlSpider, Rule
 from scrapy.linkextractors import LinkExtractor
+from datetime import datetime
 import re
 
 
@@ -49,20 +50,15 @@ class SuumoSpider(CrawlSpider):
             if response.css('.detailvalue-txt::text').re_first('新築'):
                 item['age'] = 0
 
-        yield {
-            **item,
-            **{
-                'title': response.css('title::text').extract_first(),
-                'url': response.url,
-                'keywords': response.css('meta[name="keywords"]::attr(content)').extract_first(),
-                'info': ",".join([ re.sub('\\r|\\n', '', t).strip() for t in response.css('.detailinfo-col span::text, .detailinfo-col .detailvalue-txt::text').extract()]),
-                'chinryo': parse_number(response.css('.detailvalue-item-accent::text').re_first('(%s)万円' % NUMBER_PATTERN)),
-            }
-        }
+        result = {}
+        result.update(item)
+        result.update({
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
+            'title': response.css('title::text').extract_first(),
+            'url': response.url,
+            'keywords': response.css('meta[name="keywords"]::attr(content)').extract_first(),
+            'info': ",".join([ re.sub('\\r|\\n', '', t).strip() for t in response.css('.detailinfo-col span::text, .detailinfo-col .detailvalue-txt::text').extract()]),
+            'chinryo': parse_number(response.css('.detailvalue-item-accent::text').re_first('(%s)万円' % NUMBER_PATTERN)),
+        })
 
-    # def parse(self, response):
-    #     next_page = response.css('p.pagination-parts a::attr(href)').extract()[-1]
-    #
-    #     if next_page is not None:
-    #         next_page = response.urljoin(next_page)
-    #         yield scrapy.Request(next_page, callback=self.parse)
+        yield result
