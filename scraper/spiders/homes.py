@@ -55,6 +55,8 @@ class HomesSpider(CrawlSpider):
         year, month = response.css('#chk-bkc-kenchikudate::text').re('(\d+)年(\d+)月')
         item['built_at'] = datetime(int(year), int(month), 1).strftime('%Y-%m-%d %H:%M:%S')
 
+        item['keywords'] = '\t'.join([re.sub('、', '', text).strip()  for text in response.css('#prg-bukkenNotes li::text').extract()])
+
         match = re.search('/ky-([a-f0-9]+)/', response.url)
 
         result = {
