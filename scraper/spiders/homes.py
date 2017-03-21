@@ -11,7 +11,10 @@ import re
 class HomesSpider(CrawlSpider):
     name = "homes"
     allowed_domains = ["www.homes.co.jp"]
-    start_urls = ['http://www.homes.co.jp/chintai/tokyo/meguro_00576-st/list/']
+    start_urls = [
+        'http://www.homes.co.jp/chintai/tokyo/meguro_00576-st/list/',
+        'http://www.homes.co.jp/chintai/tokyo/ebisu_00577-st/list/',
+    ]
 
     rules = [
         Rule(LinkExtractor(allow=['http://www.homes.co.jp/chintai/tokyo/meguro_00576-st/list/'])),
